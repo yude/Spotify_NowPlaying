@@ -101,6 +101,14 @@ def fetch_spotify_data():
             raise last_error
 
 
+def pick_album_image(images, preferred_index=0):
+    if not images:
+        return None
+
+    safe_index = preferred_index if preferred_index < len(images) else 0
+    return images[safe_index]["url"]
+
+
 def init():
     ensure_auth_manager(interactive=True)
 
@@ -122,19 +130,18 @@ def get_history():
             "artist": ", ".join([artist["name"] for artist in item["artists"]]),
             "album": item["album"]["name"],
             "url": item["external_urls"]["spotify"],
-            "image_url": item["album"]["images"][0]["url"] if item["album"]["images"] else None,
+            "image_url": pick_album_image(item["album"]["images"]),
         }
 
-    history = sp.current_user_recently_played(limit=50)
     history_arr = []
-    
+
     jst = timezone(timedelta(hours=+9))
 
     for value in history["items"]:
         played_at_str = value["played_at"].replace("Z", "+00:00")
         dt_utc = datetime.fromisoformat(played_at_str)
         dt_jst = dt_utc.astimezone(jst)
-        
+
         track = value["track"]
         history_arr.append({
             "played_at": dt_jst.strftime("%Y-%m-%d %H:%M:%S"),
