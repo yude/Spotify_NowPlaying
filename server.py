@@ -149,11 +149,11 @@ def get_history():
             "artist": ", ".join([artist["name"] for artist in track["artists"]]),
             "album": track["album"]["name"],
             "url": track["external_urls"]["spotify"],
-            "image_url": track["album"]["images"][1]["url"] if track["album"]["images"] else None,
+            "image_url": pick_album_image(track["album"]["images"], preferred_index=1),
         })
-    
+
     history_arr.sort(key=lambda x: x["played_at"], reverse=True)
-    
+
     return render_template(
         "index.html", current_track=current_track, tracks=history_arr
     )
